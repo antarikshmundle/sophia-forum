@@ -8,7 +8,7 @@ import { JourneyTimeline } from "@/components/about/JourneyTimeline";
 import { FacultyGrid } from "@/components/about/FacultyGrid";
 import { PrincipalCard } from "@/components/about/PrincipalCard";
 import { LeadershipSection } from "@/components/about/LeadershipSection";
-import { loadContent } from "@/lib/siteData";
+import { loadContent, loadCounts } from "@/lib/siteData";
 import { milestoneValues, sectionValues } from "@/data/siteContent";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 // Section order matches the live About page (captured 2026-10-29)
 export default async function AboutPage() {
-  const content = await loadContent();
+  const [content, counts] = await Promise.all([loadContent(), loadCounts()]);
   const hero = sectionValues("about.hero", content);
   return (
     <>
@@ -30,7 +30,7 @@ export default async function AboutPage() {
         subtitle={String(hero.subtitle)}
       />
       <PillarsGrid content={sectionValues("about.pillars", content)} />
-      <StatsBand content={sectionValues("about.stats", content)} />
+      <StatsBand counts={counts} />
       <JourneyTimeline milestones={milestoneValues(content)} />
       <FacultyGrid />
       <LeadershipSection />

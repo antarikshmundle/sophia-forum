@@ -32,21 +32,18 @@ export function Footer() {
             <div className="sm:col-span-2 lg:col-span-1 flex flex-col justify-between space-y-5">
               <div>
                 <Link href="/" className="group inline-flex items-center gap-3 mb-3" aria-label="Sophia Forum Home">
-                  <Image
-                    src="/images/sophia-forum-logo.png"
-                    alt=""
-                    width={1022}
-                    height={1177}
-                    sizes="(min-width: 640px) 42px, 38px"
-                    className="h-11 sm:h-12 w-auto object-contain group-hover:-translate-y-0.5 transition-transform duration-200"
-                  />
+                  <div className="relative inline-flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full border-[3px] border-foreground bg-white shadow-[3px_3px_0_hsl(var(--foreground))] group-hover:translate-x-[-2px] group-hover:translate-y-[-2px] group-hover:shadow-[5px_5px_0_hsl(var(--foreground))] transition-all duration-200">
+                    <span className="absolute -top-1 -left-1 w-3 h-3 rounded-full border-2 border-foreground bg-google-blue z-10" />
+                    <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-foreground bg-google-yellow z-10" />
+                    <Image src="/images/sophia-forum-logo.png" alt="" width={1022} height={1177} sizes="48px" className="w-full h-full rounded-full object-contain p-0.5" />
+                  </div>
                   <div>
                     <p className="font-heading font-black text-lg sm:text-xl tracking-tight leading-none">SOPHIA FORUM</p>
                     <span className="font-mono text-[10px] sm:text-xs font-bold text-muted-foreground tracking-wider">AI & DS FORUM</span>
                   </div>
                 </Link>
                 <p className="font-body text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                  Empowering computer science students to innovate, collaborate, and build impactful projects together.
+                  Empowering AI &amp; DS students to innovate, collaborate, and build impactful projects together.
                 </p>
               </div>
               {SOCIALS.length > 0 && (

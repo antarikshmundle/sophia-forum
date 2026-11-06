@@ -93,7 +93,7 @@ function DemoFacultyManager() {
         id: "",
         name: "",
         designation: "",
-        department: "Computer Science & Engineering",
+        department: "Artificial Intelligence & Data Science",
         image: "",
         sortOrder: faculty.reduce((max, f) => Math.max(max, f.sortOrder), 0) + 1,
       })}

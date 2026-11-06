@@ -9,7 +9,7 @@ import { findDemoAccount, signInDemo, signOutDemo, type DemoSession } from "@/li
  * The admin session for whichever sign-in mode this build uses.
  * - demo: exactly the existing demo cookie session (useDemoSession); no network requests.
  * - supabase: asked from /api/auth/session (the httpOnly cookies are never readable here), on first use, on window
- *   focus and after sign-in/out. A 401 means signed out. Tokens never reach this code.
+ *   focus and after sign-in/out. { data: null } (or any non-2xx answer) means signed out. Tokens never reach this code.
  */
 
 export type AdminSession = DemoSession;

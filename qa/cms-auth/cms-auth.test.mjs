@@ -160,7 +160,9 @@ if (MODE === "demo") {
 
   // ---------------------------------------------------------------- HTTP: sign-in rules
   section("A. sign-in rules (HTTP)");
-  check("A1 no session → GET /api/auth/session 401", (await http("GET", "/api/auth/session")).status === 401);
+  // signed out is a normal answer from /api/auth/session: 200 { data: null } (the protected /api/admin routes stay 401)
+  const signedOut = (r) => r.status === 200 && r.json !== undefined && r.json?.data === null;
+  check("A1 no session → GET /api/auth/session 200 { data: null }", signedOut(await http("GET", "/api/auth/session")));
   const wrong = await http("POST", "/api/auth/login", { body: { email: env.adminEmail, password: "definitely-wrong-" + Date.now() } });
   check("A2 wrong password → 401, generic message, no session cookie", wrong.status === 401 && wrong.json?.error === GENERIC && !wrong.set.some((c) => c.name.startsWith("sb-") && c.value), { status: wrong.status, error: wrong.json?.error });
   const unknown = await http("POST", "/api/auth/login", { body: { email: `qa-unknown-${Date.now()}@invalid.example`, password: "x-unknown-pass" } });
@@ -233,12 +235,12 @@ if (MODE === "demo") {
   const demoOnly = new Map([["sophia_demo_session", "admin%7Cadmin%40demo.local"]]);
   const demoAdmin = await http("GET", "/admin", { jar: demoOnly, origin: null });
   check("E1 forged demo admin cookie → /admin redirects to /login", demoAdmin.status >= 300 && demoAdmin.status < 400 && /\/login\?next=%2Fadmin/.test(demoAdmin.location ?? ""), { status: demoAdmin.status, location: demoAdmin.location });
-  check("E2 forged demo admin cookie → session 401 and P2.2 API 401", (await http("GET", "/api/auth/session", { jar: demoOnly })).status === 401 && (await http("GET", "/api/admin/faculty", { jar: demoOnly })).status === 401);
+  check("E2 forged demo admin cookie → session { data: null } and P2.2 API 401", signedOut(await http("GET", "/api/auth/session", { jar: demoOnly })) && (await http("GET", "/api/admin/faculty", { jar: demoOnly })).status === 401);
   if (firstSession) {
     const parts = firstSession.access_token.split(".");
     const tampered = jarWithSession({ ...firstSession, access_token: `${parts[0]}.${parts[1]}.${parts[2].slice(0, -3)}abc` }, names);
     const t1 = await http("GET", "/api/auth/session", { jar: tampered });
-    check("E3 tampered access token → 401 and the cookie is cleared", t1.status === 401 && t1.set.some((c) => c.name.startsWith("sb-") && c.attrs["max-age"] === "0"), { status: t1.status });
+    check("E3 tampered access token → { data: null } and the cookie is cleared", signedOut(t1) && t1.set.some((c) => c.name.startsWith("sb-") && c.attrs["max-age"] === "0"), { status: t1.status });
     const fakeClaims = Buffer.from(JSON.stringify({ ...jwtClaims(firstSession.access_token), exp: Math.floor(Date.now() / 1000) - 60 })).toString("base64url");
     const expired = jarWithSession({ ...firstSession, access_token: `${parts[0]}.${fakeClaims}.${parts[2]}`, refresh_token: "invalid-refresh-token", expires_at: Math.floor(Date.now() / 1000) - 60 }, names);
     const e4 = await http("GET", "/admin", { jar: expired, origin: null });
@@ -264,12 +266,12 @@ if (MODE === "demo") {
   const liveBeforeLogout = new Map(jar);
   const out = await http("POST", "/api/auth/logout", { jar });
   check("F2 sign-out → 200 and every Supabase cookie removed (Max-Age=0)", out.status === 200 && out.set.filter((c) => c.name.startsWith("sb-")).every((c) => c.attrs["max-age"] === "0") && [...jar.keys()].every((k) => !k.startsWith("sb-")), { status: out.status });
-  check("F3 the old cookie after sign-out → session 401", (await http("GET", "/api/auth/session", { jar: new Map(liveBeforeLogout) })).status === 401);
+  check("F3 the old cookie after sign-out → session { data: null }", signedOut(await http("GET", "/api/auth/session", { jar: new Map(liveBeforeLogout) })));
   check("F4 the old cookie after sign-out → /admin redirects, P2.2 API 401", (await http("GET", "/admin", { jar: new Map(liveBeforeLogout), origin: null })).status === 307 && (await http("GET", "/api/admin/faculty", { jar: new Map(liveBeforeLogout) })).status === 401);
   const old = sessionFromJar(liveBeforeLogout).session;
   if (old) {
     const reuse = jarWithSession({ ...old, expires_at: Math.floor(Date.now() / 1000) - 5 }, names);
-    check("F5 the revoked refresh token can't be used to refresh the session → 401", (await http("GET", "/api/auth/session", { jar: reuse })).status === 401);
+    check("F5 the revoked refresh token can't be used to refresh the session → { data: null }", signedOut(await http("GET", "/api/auth/session", { jar: reuse })));
   }
   check("F6 sign-out without a session is harmless (200)", (await http("POST", "/api/auth/logout", {})).status === 200);
 

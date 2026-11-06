@@ -41,7 +41,8 @@ export async function checkAppMarker(baseUrl, env) {
   const expect = (ok, name) => { if (!ok) throw new Error(`CHECK FAILED: ${name}`); passed.push(name); };
   const origin = new URL(baseUrl).origin;
 
-  expect((await fetch(`${baseUrl}/api/auth/session`)).status === 401, "signed out: /api/auth/session → 401 (server is in Supabase auth mode)");
+  const signedOut = await fetch(`${baseUrl}/api/auth/session`);
+  expect(signedOut.status === 200 && (await signedOut.json())?.data === null, "signed out: /api/auth/session → 200 { data: null } (server is in Supabase auth mode; demo mode answers 404)");
   expect((await fetch(`${baseUrl}/api/admin/content`)).status === 401, "signed out: GET /api/admin/content → 401");
 
   const jar = new Map();

@@ -97,6 +97,9 @@ export function VideoSection({ videos = STATIC_VIDEOS }: { videos?: GalleryMedia
             <h3 className="font-heading font-bold text-sm sm:text-base text-foreground">
               {latestVideo.title}
             </h3>
+            <span className="font-pixel text-[9px] text-muted-foreground uppercase">
+              AI&amp;DS SOPHIA
+            </span>
           </div>
         </div>
       </div>

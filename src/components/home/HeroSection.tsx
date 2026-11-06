@@ -2,35 +2,34 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Calendar, Users, Zap, Award, type LucideIcon } from "lucide-react";
+import { ArrowRight, Calendar, Users, GraduationCap, Images, type LucideIcon } from "lucide-react";
 import { TerminalWidget } from "./TerminalWidget";
-import { sectionValues } from "@/data/siteContent";
+import { sectionValues, type SiteCounts } from "@/data/siteContent";
 
 interface Stat {
   icon: LucideIcon;
   label: string;
   value: number;
-  suffix: string;
   text: string;
   chip: string;
 }
 
-// Icons and colours per position, as on the live homepage (captured 2026-10-29); the figures and labels are content
-const STAT_STYLES: Omit<Stat, "label" | "value" | "suffix">[] = [
-  { icon: Calendar, text: "text-google-blue", chip: "bg-google-blue/15 group-hover:bg-google-blue/25" },
-  { icon: Users, text: "text-google-red", chip: "bg-google-red/15 group-hover:bg-google-red/25" },
-  { icon: Zap, text: "text-google-yellow", chip: "bg-google-yellow/20 group-hover:bg-google-yellow/30" },
-  { icon: Award, text: "text-google-green", chip: "bg-google-green/15 group-hover:bg-google-green/25" },
+// Card colours in the order of the live homepage (captured 2026-10-29). The figures are live published counts
+// (siteData.loadCounts), never typed-in numbers; a count that is unknown or zero is not shown.
+const STAT_DEFS: (Omit<Stat, "value"> & { key: keyof SiteCounts })[] = [
+  { key: "events", label: "Events", icon: Calendar, text: "text-google-blue", chip: "bg-google-blue/15 group-hover:bg-google-blue/25" },
+  { key: "members", label: "Members", icon: Users, text: "text-google-red", chip: "bg-google-red/15 group-hover:bg-google-red/25" },
+  { key: "faculty", label: "Faculty", icon: GraduationCap, text: "text-google-yellow", chip: "bg-google-yellow/20 group-hover:bg-google-yellow/30" },
+  { key: "gallery", label: "Gallery", icon: Images, text: "text-google-green", chip: "bg-google-green/15 group-hover:bg-google-green/25" },
 ];
+// the original row is 2 columns, 4 from lg; fewer cards keep the same card size and spacing
+const STAT_GRID: Record<number, string> = { 1: "grid-cols-2", 2: "grid-cols-2", 3: "grid-cols-2 lg:grid-cols-3", 4: "grid-cols-2 lg:grid-cols-4" };
 
-/** content: the Content sections "Home · Hero" and "Home · Terminal lines" (built-in text by default). */
-export function HeroSection({ content = sectionValues("home.hero"), terminal }: { content?: Record<string, string | number>; terminal?: string[] }) {
-  const STATS: Stat[] = STAT_STYLES.map((style, i) => ({
-    ...style,
-    label: String(content[`stat${i + 1}Label`]),
-    value: Number(content[`stat${i + 1}Value`]),
-    suffix: String(content[`stat${i + 1}Suffix`] ?? ""),
-  }));
+/** content: the Content section "Home · Hero"; terminal: the terminal lines; counts: live published counts. */
+export function HeroSection({ content = sectionValues("home.hero"), terminal, counts }: { content?: Record<string, string | number>; terminal?: string[]; counts?: SiteCounts }) {
+  const STATS: Stat[] = counts
+    ? STAT_DEFS.filter(({ key }) => typeof counts[key] === "number" && (counts[key] as number) > 0).map(({ key, ...def }) => ({ ...def, value: counts[key] as number }))
+    : [];
   // Final values render by default (server HTML, no-JS, reduced motion); only the count-up starts from 0
   const [progress, setProgress] = useState(1);
 
@@ -101,26 +100,21 @@ export function HeroSection({ content = sectionValues("home.hero"), terminal }: 
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
-          {STATS.map(({ icon: Icon, label, value, suffix, text, chip }) => (
+        {/* Stats Row: live published counts */}
+        {STATS.length > 0 && (
+        <div className={`grid ${STAT_GRID[STATS.length]} gap-3 sm:gap-4 lg:gap-5`}>
+          {STATS.map(({ icon: Icon, label, value, text, chip }, i) => (
             <div
               key={label}
-              className="group glass rounded-[20px] shadow-glass hover:shadow-glass-lg hover:-translate-y-1 transition-all duration-200 p-3 sm:p-4 lg:p-5 flex items-center gap-2.5 sm:gap-3"
+              className={`group glass rounded-[20px] shadow-glass hover:shadow-glass-lg hover:-translate-y-1 transition-all duration-200 p-3 sm:p-4 lg:p-5 flex items-center gap-2.5 sm:gap-3${STATS.length === 3 && i === 2 ? " col-span-2 lg:col-span-1" : ""}`}
             >
               <div className={`p-2 sm:p-2.5 rounded-xl border-2 border-foreground transition-colors shrink-0 ${chip}`}>
                 <Icon className={`w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5] ${text}`} />
               </div>
               <div>
                 <div className={`font-display text-xl sm:text-2xl lg:text-3xl leading-none ${text}`}>
-                  <span aria-hidden="true">
-                    {Math.round(value * progress)}
-                    {suffix}
-                  </span>
-                  <span className="sr-only">
-                    {value}
-                    {suffix}
-                  </span>
+                  <span aria-hidden="true">{Math.round(value * progress)}</span>
+                  <span className="sr-only">{value}</span>
                 </div>
                 <div className="font-heading text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5 sm:mt-1">
                   {label}
@@ -129,6 +123,7 @@ export function HeroSection({ content = sectionValues("home.hero"), terminal }: 
             </div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

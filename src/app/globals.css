@@ -200,6 +200,26 @@
     line-height: 1;
     letter-spacing: -0.015em;
   }
+
+  /* Terminal cursor, as on the original (hard on/off blink); steady for reduced motion */
+  .animate-cursor-blink {
+    animation: cursor-blink 1s step-end infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-cursor-blink {
+      animation: none;
+    }
+  }
+}
+
+@keyframes cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Low-Power Mode Overrides (for low-spec devices or user toggle); after utilities, as on the original */

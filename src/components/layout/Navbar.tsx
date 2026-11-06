@@ -67,21 +67,25 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto">
           <nav
             aria-label="Main Navigation"
-            className="pointer-events-auto w-full rounded-full transition-all duration-300 glass shadow-glass py-1.5 md:py-1 px-4 sm:px-6"
+            className="pointer-events-auto w-full rounded-full transition-all duration-300 glass shadow-glass py-2.5 sm:py-3 px-4 sm:px-6"
           >
             <div className="flex items-center justify-between gap-3">
-              {/* Official Sophia Forum logo (public/images/sophia-forum-logo.png): 52 px, 64 px from md; the bar's
-                  vertical padding is kept small so the bar stays about as tall as before */}
+              {/* Original INGENIOUS logo tile with the official Sophia Forum logo (public/images/sophia-forum-logo.png).
+                  The shield is fitted inside the circle (object-contain) instead of cropped, so no part of it is cut off. */}
               <Link href="/" className="group relative inline-flex items-center shrink-0" aria-label="Sophia Forum Home">
-                <Image
-                  src="/images/sophia-forum-logo.png"
-                  alt="Sophia Forum logo"
-                  width={1022}
-                  height={1177}
-                  sizes="(min-width: 768px) 56px, 46px"
-                  className="h-[52px] md:h-16 w-auto object-contain group-hover:-translate-y-0.5 transition-transform duration-200"
-                  priority
-                />
+                <div className="relative inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-foreground bg-white shadow-[3px_3px_0_hsl(var(--foreground))] group-hover:translate-x-[-2px] group-hover:translate-y-[-2px] group-hover:shadow-[5px_5px_0_hsl(var(--foreground))] transition-all duration-200">
+                  <span className="absolute -top-1 -left-1 w-3 h-3 rounded-full border-2 border-foreground bg-google-blue z-10" />
+                  <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-foreground bg-google-yellow z-10" />
+                  <Image
+                    src="/images/sophia-forum-logo.png"
+                    alt="Sophia Forum logo"
+                    width={1022}
+                    height={1177}
+                    sizes="48px"
+                    className="w-full h-full rounded-full object-contain p-0.5"
+                    priority
+                  />
+                </div>
               </Link>
 
               {/* Desktop route pills: every pill coloured, active one raised with a pulse dot */}
@@ -142,7 +146,9 @@ export function Navbar() {
           <div className="flex items-center justify-between px-4 sm:px-6 pt-4 sm:pt-5">
             {/* links also close the menu themselves: a link to the current page doesn't change the route */}
             <Link href="/" onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2.5" aria-label="Sophia Forum Home">
-              <Image src="/images/sophia-forum-logo.png" alt="" width={1022} height={1177} sizes="42px" className="h-12 w-auto object-contain" />
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full border-[3px] border-foreground bg-white overflow-hidden">
+                <Image src="/images/sophia-forum-logo.png" alt="" width={1022} height={1177} sizes="40px" className="w-full h-full object-contain p-0.5" />
+              </span>
               <span className="font-display font-bold text-xl tracking-tight">SOPHIA FORUM</span>
             </Link>
             <button

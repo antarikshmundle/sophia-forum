@@ -1,8 +1,9 @@
 import { STATIC_EVENTS, type EventItem } from "@/data/staticEvents";
 import { STATIC_TEAM, type TeamMember } from "@/data/staticTeam";
+import { STATIC_FACULTY } from "@/data/staticFaculty";
 import { GALLERY_HIGHLIGHTS, GALLERY_PHOTOS, STATIC_VIDEOS, type GalleryMediaItem } from "@/data/staticGallery";
-import { publicFromBackend, publishedContent, publishedRecords } from "@/lib/cms/public";
-import type { StoredContent } from "@/data/siteContent";
+import { publicFromBackend, publishedContent, publishedFaculty, publishedRecords } from "@/lib/cms/public";
+import type { SiteCounts, StoredContent } from "@/data/siteContent";
 
 /**
  * Server-side data source for the public pages. Demo mode (default): the built-in datasets, exactly as before
@@ -61,4 +62,24 @@ export async function loadContent(): Promise<StoredContent | undefined> {
   if (!publicFromBackend()) return undefined;
   const r = await publishedContent();
   return r.ok ? r.data : undefined;
+}
+
+/**
+ * The statistics shown on Home and About: counts of what the public pages actually show (published records, the same
+ * reads and filters as those pages), never typed-in figures. A failed read gives null for that count (not shown).
+ */
+export async function loadCounts(): Promise<SiteCounts> {
+  const [team, events, gallery, faculty] = await Promise.all([
+    loadTeam(),
+    loadEvents(),
+    loadGallery(),
+    publicFromBackend() ? publishedFaculty() : Promise.resolve({ ok: true as const, data: STATIC_FACULTY }),
+  ]);
+  return {
+    members: team.ok ? team.data.length : null,
+    faculty: faculty.ok ? faculty.data.length : null,
+    events: events.ok ? events.data.length : null,
+    hosted: events.ok ? events.data.filter((e) => e.status === "completed" || e.status === "past").length : null,
+    gallery: gallery.ok ? gallery.data.photos.length + gallery.data.videos.length : null,
+  };
 }

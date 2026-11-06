@@ -25,7 +25,6 @@ export interface ContentSection {
 
 const t = (key: string, label: string, max = 200, optional = false): ContentField => ({ key, label, type: "text", max, optional });
 const area = (key: string, label: string, max = 1000): ContentField => ({ key, label, type: "textarea", max });
-const n = (key: string, label: string, max = 100000): ContentField => ({ key, label, type: "number", max });
 
 export const CONTENT_SECTIONS: ContentSection[] = [
   {
@@ -34,27 +33,20 @@ export const CONTENT_SECTIONS: ContentSection[] = [
     fields: [
       t("badge", "Badge"), t("title1", "Title, line 1", 40), t("title2", "Title, line 2", 40),
       t("subtitleBefore", "Subtitle, before the bold part", 200, true), t("subtitleBold", "Subtitle, bold part", 120, true), t("subtitleAfter", "Subtitle, after the bold part", 300, true),
-      n("stat1Value", "Statistic 1, number"), t("stat1Suffix", "Statistic 1, suffix", 4, true), t("stat1Label", "Statistic 1, label", 30),
-      n("stat2Value", "Statistic 2, number"), t("stat2Suffix", "Statistic 2, suffix", 4, true), t("stat2Label", "Statistic 2, label", 30),
-      n("stat3Value", "Statistic 3, number"), t("stat3Suffix", "Statistic 3, suffix", 4, true), t("stat3Label", "Statistic 3, label", 30),
-      n("stat4Value", "Statistic 4, number"), t("stat4Suffix", "Statistic 4, suffix", 4, true), t("stat4Label", "Statistic 4, label", 30),
     ],
+    // The statistic cards show live published counts (siteData.loadCounts), never typed-in figures.
     defaults: {
       badge: "AI & DS DEPARTMENT • PCE NAGPUR", title1: "SOPHIA", title2: "FORUM",
       subtitleBefore: "The", subtitleBold: "student forum", subtitleAfter: "of the AI & DS Department at PCE Nagpur.",
-      stat1Value: 20, stat1Suffix: "+", stat1Label: "Events",
-      stat2Value: 50, stat2Suffix: "+", stat2Label: "Members",
-      stat3Value: 100, stat3Suffix: "%", stat3Label: "Student Driven",
-      stat4Value: 6, stat4Suffix: "+", stat4Label: "Years",
     },
   },
   {
     id: "home.terminal",
-    label: "Home · Terminal lines",
+    label: "Home · Terminal lines ({members}, {faculty}, {events}, {hosted} show live counts)",
     fields: [1, 2, 3, 4, 5, 6, 7].map((i) => t(`line${i}`, `Line ${i}`, 60, true)),
     defaults: {
-      line1: "$ sophia --init", line2: "> Initializing AI & DS forum hub...", line3: "> Loading 50+ active members ████ OK",
-      line4: "> Events hosted: 20+ events & competitions", line5: "> Tech stack: React • TypeScript • Tailwind",
+      line1: "$ sophia --init", line2: "> Initializing AI & DS forum hub...", line3: "> Loading {members} members ████ OK",
+      line4: "> Events hosted: {hosted}", line5: "> Tech stack: React • TypeScript • Tailwind",
       line6: "> Status: ACTIVE • Ready to innovate", line7: "$ welcome --to sophia",
     },
   },
@@ -71,7 +63,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       t("eyebrow", "Badge"), t("heading1", "Heading, line 1", 60), t("heading2", "Heading, line 2 (blue)", 60), area("paragraph", "Paragraph", 600),
       t("feature1", "Feature 1", 40), t("feature2", "Feature 2", 40), t("feature3", "Feature 3", 40), t("feature4", "Feature 4", 40),
       t("button", "Button", 40),
-      t("photo", "Photo (upload, or a site image path /images/…)", 300, true), t("photoCaption", "Photo caption", 40, true), t("photoBadge", "Photo badge", 30, true),
+      t("photo", "Photo (upload, or a site image path /images/…)", 300, true), t("photoCaption", "Photo caption", 40, true), t("photoBadge", "Photo badge ({members} shows the live count)", 30, true),
       t("footerLeft", "Under the photo, left", 40, true), t("footerRight", "Under the photo, right", 40, true),
     ],
     defaults: {
@@ -80,7 +72,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       feature1: "Technical Events", feature2: "Student Community", feature3: "Innovation & Projects", feature4: "Learning & Collaboration",
       button: "DISCOVER OUR MISSION",
       // No community photo by default; it is uploaded in Admin → Content.
-      photo: "", photoCaption: "", photoBadge: "50+ MEMBERS", footerLeft: "Community Driven", footerRight: "Est. 2020",
+      photo: "", photoCaption: "", photoBadge: "{members} MEMBERS", footerLeft: "Community Driven", footerRight: "Est. 2020",
     },
   },
   {
@@ -112,15 +104,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       title3: "OBJECTIVES", body3: "Organize impactful events, provide hands-on learning, bridge the gap between academia and industry, and foster peer mentorship.",
     },
   },
-  {
-    id: "about.stats",
-    label: "About · Statistics",
-    fields: [1, 2, 3, 4].flatMap((i) => [t(`value${i}`, `Statistic ${i}, figure`, 12), t(`label${i}`, `Statistic ${i}, label`, 30)]),
-    defaults: {
-      value1: "10+", label1: "EVENTS HOSTED", value2: "20+", label2: "ACTIVE MEMBERS",
-      value3: "8+", label3: "FACULTY ADVISORS", value4: "5+", label4: "YEARS ACTIVE",
-    },
-  },
+  // The About statistics band shows live published counts (siteData.loadCounts); it has no editable figures.
 ];
 
 export const MILESTONES_ID = "about.milestones";
@@ -152,6 +136,31 @@ export function sectionValues(id: string, stored?: StoredContent): Record<string
     if (f.type === "number" ? typeof v === "number" : typeof v === "string") out[f.key] = v as string | number;
   }
   return out;
+}
+
+/** Live published counts (null = unknown, e.g. the CMS read failed). */
+export interface SiteCounts {
+  members: number | null;
+  faculty: number | null;
+  /** all published events */
+  events: number | null;
+  /** published events that have taken place (completed or past) */
+  hosted: number | null;
+  gallery: number | null;
+}
+
+/**
+ * Fills {members}, {faculty}, {events} and {hosted} in a content text with live counts. Returns null when the text
+ * uses a count that is unknown or zero, so the element is left out instead of showing an empty or zero figure.
+ */
+export function fillCounts(text: string, counts: SiteCounts): string | null {
+  let missing = false;
+  const out = text.replace(/\{(members|faculty|events|hosted)\}/g, (_, key: keyof SiteCounts) => {
+    const v = counts[key];
+    if (typeof v !== "number" || v <= 0) missing = true;
+    return String(v);
+  });
+  return missing ? null : out;
 }
 
 export function milestoneValues(stored?: StoredContent): MilestoneEntry[] {

@@ -41,9 +41,13 @@ async function supabaseGate(request: NextRequest, pathname: string): Promise<Nex
   const pending: PendingCookie[] = [];
   const result = await readAdminSession(createSessionClient(config, request.cookies, pending));
   if (!result.ok) {
+    const headers = { "Cache-Control": "no-store, max-age=0", "X-Content-Type-Options": "nosniff" };
+    // /api/auth/session: "signed out" is a normal answer (200, data null); /api/admin stays 401
     const denied = adminPage
       ? toLogin(request, pathname)
-      : NextResponse.json({ error: "Sign in required." }, { status: 401, headers: { "Cache-Control": "no-store, max-age=0", "X-Content-Type-Options": "nosniff" } });
+      : pathname === "/api/auth/session"
+        ? NextResponse.json({ data: null }, { status: 200, headers })
+        : NextResponse.json({ error: "Sign in required." }, { status: 401, headers });
     for (const cookie of request.cookies.getAll()) if (isSupabaseCookie(cookie.name)) denied.cookies.set(cookie.name, "", REMOVED_COOKIE);
     return denied;
   }
