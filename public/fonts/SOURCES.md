@@ -24,6 +24,19 @@ All files are unmodified. Google families were fetched from fonts.gstatic.com on
 | JetBrains Mono | latin-ext | normal | `jetbrains-mono-latin-ext.woff2` | 11596 | `9c38cb2d0d2d93c1ee6e21fa78db76f13ea7e15e15cc64214c7ca89b6aaa35c4` |
 | JetBrains Mono | latin | normal | `jetbrains-mono-latin.woff2` | 31340 | `2c32b9b3ee358c119e210f6f5195f9bd34894d78a785ff2e95d60e718e400af4` |
 
-## Removed font
+## Retron2000: intentionally excluded, licence unverified
 
-Retron2000 (from the original site) was removed from the distributable project on 2026-11-05. Permission to redistribute it or embed it on the web could not be established: the file says "All rights reserved" and contains no licence. The display text (`--font-display`) now uses Space Grotesk, listed above. The original file is kept outside the project, in the external archive.
+The original INGENIOUS display font, Retron2000, is **intentionally not part of this repository**. Its licence and its
+redistribution and web-embedding permissions are **unverified**: the file says "All rights reserved" and contains no
+licence. In this repository the display text (`--font-display`) uses Space Grotesk, listed above, so the site builds and
+runs without it.
+
+| Family | File | Bytes | SHA-256 (for identification only; the file is not in this repository) |
+|---|---|---|---|
+| Retron2000 | `Retron2000.ttf` | 33348 | `717114a706b3d3da1d19cfa2006696da7853e5b66772f94417a1c0aec7087173` |
+
+- **Local restoration:** a byte-identical copy and the matching typography changes (`@font-face`, preload and
+  `--font-display: "Retron2000", "Space Grotesk", sans-serif`) are kept separately by the owner, outside Git history,
+  for local visual restoration and verification only.
+- **Do not** commit `Retron2000.ttf`, or the CSS and preload changes that load it, and do not deploy them, until
+  permission to redistribute and embed the font has been obtained and recorded here.
