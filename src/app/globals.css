@@ -1,0 +1,249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: "Space Grotesk", "Space Grotesk Fallback", sans-serif;
+    /* Same family stacks next/font produced: web font, then its metric-adjusted fallback (fonts.css) */
+    --font-heading: "Space Grotesk", "Space Grotesk Fallback", sans-serif;
+    --font-pixel: "Press Start 2P", "Press Start 2P Fallback", monospace;
+    --font-body: "DM Sans", "DM Sans Fallback", sans-serif;
+    --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", monospace;
+
+    /* Base Palette */
+    --background: 40 10% 95%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 217 89% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 40 10% 90%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 45 97% 50%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 9 85% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Google 4-Color Accent System */
+    --google-blue: 217 89% 61%;
+    --google-red: 9 85% 56%;
+    --google-yellow: 45 97% 50%;
+    --google-green: 145 63% 42%;
+
+    /* Neo-Brutalist Border & Shadows */
+    --border: 0 0% 7%;
+    --input: 0 0% 7%;
+    --ring: 217 89% 61%;
+    --radius: 0px;
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
+    --radius-full: 9999px;
+
+    --shadow-brutal: 4px 4px 0px hsl(0 0% 7%);
+    --shadow-brutal-lg: 6px 6px 0px hsl(0 0% 7%);
+    --shadow-brutal-hover: 8px 8px 0px hsl(0 0% 7%);
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-glass-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
+  }
+
+  .dark {
+    --background: 0 0% 7%;
+    --foreground: 40 10% 95%;
+    --card: 0 0% 12%;
+    --card-foreground: 40 10% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 40 10% 95%;
+    --primary: 217 89% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 40 10% 95%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 45 97% 50%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 9 85% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 30%;
+    --input: 0 0% 30%;
+    --ring: 217 89% 61%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+/*
+ * Neo-Brutalist & Glassmorphism primitives. Values match the original site's compiled
+ * stylesheet (index-BxPsBpTu.css, captured 2026-10-29). Declared in the components layer
+ * so Tailwind utilities (e.g. border-2 border-google-blue) can override them, as on the original.
+ */
+@layer components {
+  .graph-paper {
+    background-size: 24px 24px;
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.06) 1px, transparent 1px);
+  }
+
+  .btn-brutal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    border: 2px solid hsl(var(--foreground));
+    border-radius: var(--radius-sm);
+    background: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    box-shadow: var(--shadow-brutal);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+
+  .btn-brutal:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-brutal-lg);
+  }
+
+  .btn-brutal:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 hsl(var(--foreground));
+  }
+
+  .brutal-card {
+    border: 3px solid hsl(var(--foreground));
+    border-radius: var(--radius-lg);
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-brutal-lg);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .brutal-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-brutal-hover);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--shadow-glass), inset 0 1px rgba(255, 255, 255, 0.4);
+  }
+
+  .dark .glass {
+    background: rgba(20, 20, 20, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow-glass-lg), inset 0 1px rgba(255, 255, 255, 0.55);
+  }
+
+  .btn-glass {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: var(--shadow-glass), inset 0 1px rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-full);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .btn-glass:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-glass-lg), inset 0 1px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@layer utilities {
+  .text-display-fluid {
+    font-size: clamp(2.75rem, 8vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+
+  .text-heading-fluid {
+    font-size: clamp(1.875rem, 5vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Low-Power Mode Overrides (for low-spec devices or user toggle); after utilities, as on the original */
+html.low-power .glass,
+html.low-power .glass-strong,
+html.low-power .btn-glass,
+html.low-power [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.low-power .glass,
+html.low-power .btn-glass {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--foreground) / 0.15);
+  box-shadow: var(--shadow-glass);
+}
+
+html.low-power .glass-strong {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--foreground) / 0.2);
+  box-shadow: var(--shadow-glass-lg);
+}
+
+html.low-power .ambient-glow {
+  display: none !important;
+}
+
+/* Infinite Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation-play-state: paused;
+  }
+}

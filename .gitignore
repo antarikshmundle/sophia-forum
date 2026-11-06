@@ -1,0 +1,71 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+# all env files and credentials (only the names-only template may be committed)
+.env
+.env.*
+!.env.example
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa*
+service-account*.json
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
+# staging data exports made by qa/cms-db/backup-staging.mjs
+qa/cms-db/backups/
+# local-only operational input with personal data (e.g. the committee roster read by qa/cms-db/*-committee-2026.mjs)
+/local-private/
+# headless Chrome test profiles used by the QA scripts (browser databases, not evidence)
+qa/**/profile/
+
+# generated QA run output (never committed; historical results were excluded from the clean repository)
+qa/**/results/
+qa/**/screenshots/
+qa/**/lighthouse/
+
+# vercel
+.vercel
+
+# playwright / vitest output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# logs, database dumps and network captures (may contain data or session tokens)
+*.log
+logs/
+*.dump
+*.sql.gz
+*.backup
+*.har
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

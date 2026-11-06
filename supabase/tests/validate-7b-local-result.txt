@@ -1,0 +1,46 @@
+disposable PostgreSQL 17.11
+PASS  [apply] files: 7 (1–6 + 7b); rollback present
+PASS  [apply] 1–6 and 7b apply in order (no storage schema needed)
+PASS  [verify_schema_7b.sql] the four tables exist with RLS enabled
+PASS  [verify_schema_7b.sql] anon: SELECT only (no INSERT/UPDATE/DELETE) on all four
+PASS  [verify_schema_7b.sql] anon: cannot read updated_by
+PASS  [verify_schema_7b.sql] authenticated: ids not updatable; site_content not deletable
+PASS  [verify_schema_7b.sql] policies: 5 on team_members, events, gallery_items; 3 on site_content
+PASS  [verify_schema_7b.sql] audit and updated-fields triggers on all four (8)
+PASS  [verify_schema_7b.sql] migrations 1–6 objects untouched (faculty, hod_messages, audit_log still present)
+PASS  [team] admin creates a member with every form field
+PASS  [team] defaults: unpublished; updated_by stamped
+PASS  [team] unknown committee rejected
+PASS  [team] non-URL photo rejected (e.g. javascript:)
+PASS  [team] bad slug rejected
+PASS  [team] anon sees published only
+PASS  [events] admin creates an event with every form field
+PASS  [events] featured only while upcoming (existing form rule)
+PASS  [events] invalid date rejected
+PASS  [events] poster required (as in the form)
+PASS  [events] unknown status rejected
+PASS  [events] anon sees none while unpublished
+PASS  [gallery] photo and video items with every form field
+PASS  [gallery] year outside 2000–2100 rejected
+PASS  [gallery] unknown media type rejected
+PASS  [gallery] anon sees published only
+PASS  [content] admin creates and updates a section; anon reads it
+PASS  [content] not deletable; key not renamable; bad key, non-object and >64 KB rejected
+PASS  [access] team_members: anon writes refused; select * refused (updated_by hidden)
+PASS  [access] team_members: no-profile user can't insert (RLS), update or delete (0 rows)
+PASS  [access] team_members: id not updatable even by the admin
+PASS  [access] events: anon writes refused; select * refused (updated_by hidden)
+PASS  [access] events: no-profile user can't insert (RLS), update or delete (0 rows)
+PASS  [access] events: id not updatable even by the admin
+PASS  [access] gallery_items: anon writes refused; select * refused (updated_by hidden)
+PASS  [access] gallery_items: no-profile user can't insert (RLS), update or delete (0 rows)
+PASS  [access] gallery_items: id not updatable even by the admin
+PASS  [access] site_content: anon writes refused; select * refused (updated_by hidden)
+PASS  [access] site_content: no-profile user can't insert (RLS), update or delete (0 rows)
+PASS  [access] site_content: id not updatable even by the admin
+PASS  [audit] admin deletes a member, an event and a gallery item
+PASS  [audit] writes on all four tables recorded with the admin as actor (incl. deletes)
+PASS  [rollback] 7b rollback removes exactly its four tables; faculty, hod_messages, audit_log remain
+PASS  [rollback] 7b re-applies cleanly after its rollback
+
+43/43 checks passed; server stopped, data directory removed

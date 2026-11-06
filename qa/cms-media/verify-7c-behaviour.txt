@@ -1,0 +1,6 @@
+TRUE  1 bucket site-media: public read, 5 MB limit, JPEG/PNG/WebP only  — upload ok; public GET 200; >5MB: The object exceeded the maximum allowed size; svg: mime type image/svg+xml is not supported; gif: mime type image/gif is not supported
+TRUE  2 admin policies work: list, insert, update (move within allowed paths), delete; outside paths refused  — list 1; move ok; outside new row violates row-level security policy; delete 1
+TRUE  3 no write/list for anon or a non-admin user  — anon upload: new row violates row-level security policy; non-admin upload: new row violates row-level security policy
+TRUE  4 the held faculty-photos bucket does not exist  — Bucket not found
+
+4/4 true; test files left: 0
