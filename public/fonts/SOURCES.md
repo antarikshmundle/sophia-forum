@@ -24,19 +24,37 @@ All files are unmodified. Google families were fetched from fonts.gstatic.com on
 | JetBrains Mono | latin-ext | normal | `jetbrains-mono-latin-ext.woff2` | 11596 | `9c38cb2d0d2d93c1ee6e21fa78db76f13ea7e15e15cc64214c7ca89b6aaa35c4` |
 | JetBrains Mono | latin | normal | `jetbrains-mono-latin.woff2` | 31340 | `2c32b9b3ee358c119e210f6f5195f9bd34894d78a785ff2e95d60e718e400af4` |
 
-## Retron2000: intentionally excluded, licence unverified
+## Retron2000: used with the designer's written permission
 
-The original INGENIOUS display font, Retron2000, is **intentionally not part of this repository**. Its licence and its
-redistribution and web-embedding permissions are **unverified**: the file says "All rights reserved" and contains no
-licence. In this repository the display text (`--font-display`) uses Space Grotesk, listed above, so the site builds and
-runs without it.
+| Family | Style | File | Bytes | SHA-256 |
+|---|---|---|---|---|
+| Retron2000 | normal (declared weight range 400–900) | `Retron2000.ttf` | 33348 | `717114a706b3d3da1d19cfa2006696da7853e5b66772f94417a1c0aec7087173` |
 
-| Family | File | Bytes | SHA-256 (for identification only; the file is not in this repository) |
-|---|---|---|---|
-| Retron2000 | `Retron2000.ttf` | 33348 | `717114a706b3d3da1d19cfa2006696da7853e5b66772f94417a1c0aec7087173` |
-
-- **Local restoration:** a byte-identical copy and the matching typography changes (`@font-face`, preload and
-  `--font-display: "Retron2000", "Space Grotesk", sans-serif`) are kept separately by the owner, outside Git history,
-  for local visual restoration and verification only.
-- **Do not** commit `Retron2000.ttf`, or the CSS and preload changes that load it, and do not deploy them, until
-  permission to redistribute and embed the font has been obtained and recorded here.
+- **Designer:** Vasily Draigo (Daymarius). Version 1.00, October 2018. The file is unmodified: byte-identical to the
+  copy served by the original INGENIOUS site and kept in the project's local archive.
+- **Permission:** written permission from the designer for the Sophia Forum website.
+  - **Received:** November 7, 2026, 12:35 PM, by email from the Executive Team, Daymarius. The original email is kept by
+    the project owner.
+  - **Granted (only these uses):**
+    - hosting the Retron2000 TTF file on the website's server;
+    - embedding it with CSS `@font-face` for public visitors;
+    - using it for headings, titles and display typography;
+    - all on the publicly accessible, non-commercial, educational Sophia Forum website of the AI & DS department at
+      PCE.
+  - **Mandatory attribution**, in exactly this wording: **"Typography: Retron2000 Typeface by Daymarius"**.
+- **Additional permission (repository):** a second written permission from the designer.
+  - **Received:** November 7, 2026, 12:45 PM, by email from the Executive Team, Daymarius. The original email is kept by
+    the project owner.
+  - **Granted:** storing the Retron2000 TTF file in this **private** GitHub source repository, solely for version control
+    and the automated Vercel deployment of the Sophia Forum website.
+  - **Conditions:** the repository must remain **private**, and the font must only be served for the Sophia Forum
+    website.
+  - **Mandatory attribution** (unchanged): **"Typography: Retron2000 Typeface by Daymarius"**.
+- **Attribution on the site:** the exact text above is shown in the footer's bottom ribbon on every page
+  (`src/components/layout/Footer.tsx`).
+- **Scope limits:** the two permissions cover only the uses listed above. They don't grant a general licence, commercial
+  use, modification, redistribution of the file on its own, use on other websites or in other projects, or keeping the
+  file in a public repository. Don't offer the file for download. If this repository is ever made public, remove the
+  font from it first.
+- **This website's use:** the display text (`--font-display: "Retron2000", "Space Grotesk", sans-serif`), loaded with
+  `@font-face` and a preload. The file is served unmodified.

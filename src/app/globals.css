@@ -2,9 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Original INGENIOUS display font Retron2000 by Daymarius, unmodified (SHA-256 717114a7…7173).
+   Used with the designer's written permission; see public/fonts/SOURCES.md. */
+@font-face {
+  font-family: "Retron2000";
+  src: url("/fonts/Retron2000.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
-    --font-display: "Space Grotesk", "Space Grotesk Fallback", sans-serif;
+    --font-display: "Retron2000", "Space Grotesk", sans-serif;
     /* Same family stacks next/font produced: web font, then its metric-adjusted fallback (fonts.css) */
     --font-heading: "Space Grotesk", "Space Grotesk Fallback", sans-serif;
     --font-pixel: "Press Start 2P", "Press Start 2P Fallback", monospace;

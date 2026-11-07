@@ -142,7 +142,8 @@ export function Footer() {
         <div className="border-t border-white/30 bg-foreground text-background px-4 sm:px-6 md:px-8 lg:px-10 py-3 sm:py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-center sm:text-left">
           <p className="font-body text-[11px] sm:text-xs font-medium text-background/90">© 2026 SOPHIA FORUM. All rights reserved.</p>
           <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px] sm:text-[11px] text-background/80">
-            {/* Credit removed (S4); the empty slot keeps the ribbon layout unchanged */}
+            {/* Font attribution required by the designer's permission (public/fonts/SOURCES.md); exact wording */}
+            <span>Typography: Retron2000 Typeface by Daymarius</span>
           </div>
           <button
             type="button"

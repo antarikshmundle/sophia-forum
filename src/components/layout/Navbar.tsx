@@ -149,7 +149,7 @@ export function Navbar() {
               <span className="inline-flex items-center justify-center w-10 h-10 rounded-full border-[3px] border-foreground bg-white overflow-hidden">
                 <Image src="/images/sophia-forum-logo.png" alt="" width={1022} height={1177} sizes="40px" className="w-full h-full object-contain p-0.5" />
               </span>
-              <span className="font-display font-bold text-xl tracking-tight">SOPHIA FORUM</span>
+              <span className="font-display text-xl tracking-tight">SOPHIA FORUM</span>
             </Link>
             <button
               type="button"
