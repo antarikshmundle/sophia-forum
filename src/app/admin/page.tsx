@@ -7,6 +7,7 @@ import { resetDemoStore, useDemoCollection } from "@/lib/demoStore";
 import { useAdminSession } from "@/hooks/useAdminSession";
 import { Dialog } from "@/components/ui/Dialog";
 import { useFacultyMode } from "@/components/admin/FacultyModeProvider";
+import { useAuthMode } from "@/components/auth/AuthModeProvider";
 
 type Row = { status?: string; category?: string };
 type Counts = Record<"faculty" | "team" | "events" | "gallery", Row[] | null>;
@@ -28,6 +29,7 @@ function useBackendCounts(enabled: boolean): Counts | undefined {
 
 export default function AdminDashboardPage() {
   const session = useAdminSession();
+  const authMode = useAuthMode();
   const facultyMode = useFacultyMode();
   const events = useDemoCollection("events");
   const gallery = useDemoCollection("gallery");
@@ -50,7 +52,8 @@ export default function AdminDashboardPage() {
     { label: "Gallery", href: "/admin/gallery", icon: Images, color: "bg-google-green", value: count(ga), detail: `${where(ga, (g) => g.category === "photo")} photos · ${where(ga, (g) => g.category === "video")} videos` },
     { label: "Team", href: "/admin/team", icon: Users, color: "bg-google-red", value: count(te), detail: "council members" },
     { label: "Faculty", href: "/admin/faculty", icon: GraduationCap, color: "bg-google-yellow", value: count(fa), detail: "mentors" },
-    ...(session?.role === "admin"
+    // the mock-account Users screen exists only with the demo sign-in (src/app/admin/users/layout.tsx)
+    ...(session?.role === "admin" && authMode !== "supabase"
       ? [{ label: "Users", href: "/admin/users", icon: UserCog, color: "bg-foreground", value: users.length, detail: "mock accounts" }]
       : []),
   ];

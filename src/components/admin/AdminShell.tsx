@@ -12,14 +12,15 @@ import { DemoNotice } from "@/components/ui/DemoNotice";
 import { cn } from "@/lib/utils";
 
 // backendOnly: shown only when the dashboard runs on the CMS backend (the Content editor has no demo store)
-export const ADMIN_TABS: { label: string; href: string; adminOnly?: boolean; backendOnly?: boolean }[] = [
+// demoOnly: shown only with the demo sign-in (the Users screen manages browser-local mock accounts, never real users)
+export const ADMIN_TABS: { label: string; href: string; adminOnly?: boolean; backendOnly?: boolean; demoOnly?: boolean }[] = [
   { label: "Overview", href: "/admin" },
   { label: "Events", href: "/admin/events" },
   { label: "Gallery", href: "/admin/gallery" },
   { label: "Team", href: "/admin/team" },
   { label: "Faculty", href: "/admin/faculty" },
   { label: "Content", href: "/admin/content", adminOnly: true, backendOnly: true },
-  { label: "Users", href: "/admin/users", adminOnly: true },
+  { label: "Users", href: "/admin/users", adminOnly: true, demoOnly: true },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -43,7 +44,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const tabs = ADMIN_TABS.filter((tab) => (!tab.adminOnly || session.role === "admin") && (!tab.backendOnly || facultyMode === "backend"));
+  const tabs = ADMIN_TABS.filter(
+    (tab) => (!tab.adminOnly || session.role === "admin") && (!tab.backendOnly || facultyMode === "backend") && (!tab.demoOnly || mode !== "supabase")
+  );
   const current = ADMIN_TABS.find((tab) => tab.href === pathname);
 
   return (
@@ -51,8 +54,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       {mode === "supabase" ? (
         <DemoNotice>
           {facultyMode === "backend"
-            ? "Faculty, Team, Events, Gallery and site content are live. Users is still a local demo stored in this browser."
-            : "Faculty sign-in is live. Events, Gallery, Team, Users and Faculty data are still a local demo stored in this browser."}
+            ? "Faculty, Team, Events, Gallery and site content are live."
+            : "Faculty sign-in is live. Events, Gallery, Team and Faculty data are still a local demo stored in this browser."}
         </DemoNotice>
       ) : (
         <DemoNotice>
