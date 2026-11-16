@@ -10,7 +10,7 @@ vi.mock("next/link", () => ({
 }));
 
 import { botHiddenOn, SophiaBotLoader } from "@/components/bot/SophiaBotLoader";
-import SophiaBotPanel, { SUGGESTED_QUESTIONS } from "@/components/bot/SophiaBotPanel";
+import SophiaBotPanel, { PREVIEW_NOTICE, SUGGESTED_QUESTIONS } from "@/components/bot/SophiaBotPanel";
 
 type Sent = { message: string; history: { role: string; text: string }[] };
 let sent: Sent[] = [];
@@ -178,6 +178,59 @@ describe("chat panel", () => {
     await userEvent.type(screen.getByLabelText("Your question"), "hi{Enter}");
     await screen.findByText("Example Hackathon is on 5 December.");
     expect(setItem).not.toHaveBeenCalled();
+  });
+});
+
+describe("preview mode (AI provider not approved): read-only panel", () => {
+  const renderPreview = () => render(<SophiaBotPanel open onClose={() => {}} preview />);
+
+  it("shows the branding, welcome, supported languages and the notice", () => {
+    renderPreview();
+    expect(screen.getByRole("dialog", { name: "SOPHIA BOT" })).toBeVisible();
+    expect(screen.getByText(/I'm Sophia Bot, the AI & DS Department's assistant/)).toBeInTheDocument();
+    expect(screen.getByText(/English, हिंदी or Hinglish/)).toBeInTheDocument();
+    expect(screen.getByTestId("sophia-bot-preview-notice")).toHaveTextContent(PREVIEW_NOTICE);
+    expect(PREVIEW_NOTICE).toBe("AI responses are currently being prepared. Live assistance will be available soon.");
+    expect(screen.getByText(/COMING SOON/)).toBeInTheDocument();
+  });
+
+  it("disables the input and send button, shows no suggestions, and focuses Close", () => {
+    renderPreview();
+    expect(screen.getByLabelText("Your question")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Send question" })).toBeDisabled();
+    for (const q of SUGGESTED_QUESTIONS) expect(screen.queryByRole("button", { name: q })).toBeNull();
+    expect(screen.getByRole("button", { name: "Close Sophia Bot" })).toHaveFocus();
+  });
+
+  it("never sends a request and never shows an answer, sources or a simulated conversation", async () => {
+    const { container } = renderPreview();
+    const input = screen.getByLabelText("Your question");
+    fireEvent.change(input, { target: { value: "What is Sophia Forum?" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.submit(container.querySelector("form")!);
+    await act(async () => { await new Promise((r) => setTimeout(r, 20)); });
+    expect(fetch).not.toHaveBeenCalled();
+    expect(sent).toHaveLength(0);
+    expect(screen.queryByText("SOURCES")).toBeNull();
+    expect(screen.queryByText(/Example Hackathon/)).toBeNull();
+    expect(screen.queryByText(/^You:/)).toBeNull();
+  });
+
+  it("the launcher opens the read-only panel (no green 'online' pulse)", async () => {
+    const { container } = render(<SophiaBotLoader idleDelayMs={0} preview />);
+    const launcher = await screen.findByTestId("sophia-bot-launcher");
+    expect(container.querySelector(".animate-ping, .motion-safe\\:animate-ping")).toBeNull();
+    await userEvent.click(launcher);
+    expect(await screen.findByTestId("sophia-bot-preview-notice")).toBeVisible();
+    expect(screen.getByLabelText("Your question")).toBeDisabled();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("live mode is unchanged: no notice, input enabled", () => {
+    render(<SophiaBotPanel open onClose={() => {}} />);
+    expect(screen.queryByTestId("sophia-bot-preview-notice")).toBeNull();
+    expect(screen.getByLabelText("Your question")).not.toBeDisabled();
+    expect(screen.getByText(/BETA/)).toBeInTheDocument();
   });
 });
 

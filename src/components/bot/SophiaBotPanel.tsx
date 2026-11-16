@@ -70,8 +70,12 @@ function Sources({ sources }: { sources: ChatSource[] }) {
   );
 }
 
-export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+/** Shown in preview mode (AI provider not approved yet): the panel can be opened and read, but nothing can be sent. */
+export const PREVIEW_NOTICE = "AI responses are currently being prepared. Live assistance will be available soon.";
+
+export default function SophiaBotPanel({ open, onClose, preview = false }: { open: boolean; onClose: () => void; preview?: boolean }) {
   const titleId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
   const [messages, setMessages] = useState<Message[]>([{ id: 0, role: "assistant", text: WELCOME, sources: [], fallback: false, welcome: true }]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
@@ -83,7 +87,7 @@ export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClo
   // focus the input when opened; Escape closes; the mobile sheet locks page scrolling
   useEffect(() => {
     if (!open) return;
-    inputRef.current?.focus();
+    (preview ? closeRef.current : inputRef.current)?.focus(); // the input is disabled in preview
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
     const mobile = window.matchMedia?.("(max-width: 639px)").matches;
@@ -93,7 +97,7 @@ export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClo
       document.removeEventListener("keydown", onKey);
       if (mobile) document.body.style.overflow = previous;
     };
-  }, [open, onClose]);
+  }, [open, onClose, preview]);
 
   useEffect(() => {
     const log = logRef.current;
@@ -102,7 +106,7 @@ export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClo
 
   const ask = useCallback(async (question: string) => {
     const text = question.trim();
-    if (!text || pending) return;
+    if (preview || !text || pending) return; // preview: never send anything
     // context: the last few real exchanges (no welcome text, no fallback replies)
     // context: the visitor's own last questions only. The server never uses earlier answers (they are not sources),
     // so sending them would only use up history slots; clarifications and fallbacks are never sent either.
@@ -136,7 +140,7 @@ export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClo
     setMessages((ms) => [...ms, reply]);
     setPending(false);
     window.setTimeout(() => inputRef.current?.focus(), 0);
-  }, [messages, pending]);
+  }, [messages, pending, preview]);
 
   return (
     <section
@@ -155,11 +159,12 @@ export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClo
         <div className="min-w-0 flex-1">
           <h2 id={titleId} className="font-display text-xl leading-none tracking-wide">SOPHIA BOT</h2>
           <p className="mt-1 flex items-center gap-1.5 font-mono text-[10px] text-background/70">
-            <span className="inline-block w-2 h-2 rounded-full bg-google-green" aria-hidden="true" />
-            AI &amp; DS ASSISTANT · BETA
+            <span className={`inline-block w-2 h-2 rounded-full ${preview ? "bg-google-yellow" : "bg-google-green"}`} aria-hidden="true" />
+            AI &amp; DS ASSISTANT · {preview ? "COMING SOON" : "BETA"}
           </p>
         </div>
         <button
+          ref={closeRef}
           type="button"
           onClick={onClose}
           aria-label="Close Sophia Bot"
@@ -191,7 +196,18 @@ export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClo
           ),
         )}
 
-        {!asked && (
+        {preview && (
+          <div className="flex justify-start">
+            <p
+              data-testid="sophia-bot-preview-notice"
+              className="max-w-[92%] rounded-2xl border-2 border-dashed border-foreground/60 bg-google-yellow/15 px-3.5 py-2.5 font-body text-sm"
+            >
+              {PREVIEW_NOTICE}
+            </p>
+          </div>
+        )}
+
+        {!asked && !preview && (
           <div className="pt-1">
             <p className="font-pixel text-[8px] tracking-wider text-muted-foreground mb-2">TRY ASKING</p>
             <ul className="flex flex-wrap gap-2">
@@ -239,12 +255,13 @@ export default function SophiaBotPanel({ open, onClose }: { open: boolean; onClo
             }}
             rows={1}
             maxLength={MAX_CHARS}
-            placeholder="Ask in English, हिंदी or Hinglish…"
-            className="flex-1 resize-none max-h-28 min-h-[44px] rounded-xl border-2 border-foreground bg-background px-3 py-2.5 font-body text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-google-blue caret-google-blue"
+            disabled={preview}
+            placeholder={preview ? "Live assistance coming soon" : "Ask in English, हिंदी or Hinglish…"}
+            className="flex-1 resize-none max-h-28 min-h-[44px] rounded-xl border-2 border-foreground bg-background px-3 py-2.5 font-body text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-google-blue caret-google-blue disabled:opacity-60 disabled:cursor-not-allowed"
           />
           <button
             type="submit"
-            disabled={pending || !input.trim()}
+            disabled={preview || pending || !input.trim()}
             aria-label="Send question"
             className="btn-brutal w-11 h-11 !min-h-0 shrink-0 !rounded-xl bg-foreground text-background disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-google-blue"
           >

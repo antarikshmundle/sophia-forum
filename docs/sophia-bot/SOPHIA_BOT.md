@@ -6,7 +6,8 @@ Sophia Bot is the AI & DS Department's assistant on the Sophia Forum website. It
 
 **Status:** implemented and tested locally; **off by default**. The code ships with the site, but the bot is
 **disabled in production** (`SOPHIA_BOT_ENABLED` is not `true`, and no AI provider credentials are configured on
-Vercel). The AI provider is not decided: Gemini's API terms exclude services likely to be used by under-18s, so a
+Vercel). Production shows the launcher and panel in **preview mode** (`SOPHIA_BOT_PREVIEW`): the welcome message and
+a notice that AI responses are being prepared, with the input disabled; nothing is sent and `/api/bot/chat` stays 404. The AI provider is not decided: Gemini's API terms exclude services likely to be used by under-18s, so a
 replacement provider (free tier, no billing) is being evaluated before the bot is enabled anywhere public.
 
 ## 1. How a question is answered
@@ -38,6 +39,7 @@ Fallback replies are fixed texts in the user's language: `no-sources`, `not-in-s
 | Variable | Meaning |
 |---|---|
 | `SOPHIA_BOT_ENABLED` | `true` turns the bot on. Anything else, including unset, means off: no launcher, and `/api/bot/chat` returns 404. |
+| `SOPHIA_BOT_PREVIEW` | UI only; never enables the API. When the bot is off: `true` shows the read-only preview panel, `false` hides the launcher, unset = preview on Vercel production only (off locally and on preview deployments). Ignored when the bot is live. |
 | `GEMINI_API_KEY` | Gemini API key (local development only; see Status). Missing = bot off. |
 | `GEMINI_MODEL` | Gemini model ID. Required, no default: confirm the current ID and its price on Google's official model and pricing pages first. A Flash-Lite model is the intended tier. |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL, `https://<database>.upstash.io` (Upstash console → Connect → REST). Only `*.upstash.io` over https is accepted. |

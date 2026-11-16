@@ -84,6 +84,11 @@ describe("availability", () => {
     ["no API key", { GEMINI_API_KEY: "" }],
     ["no model", { GEMINI_MODEL: "" }],
     ["production without a shared rate limiter", { VERCEL_ENV: "production" }],
+    // the UI-only preview flag never turns the API on (this release's production configuration, and worse)
+    ["UI preview on production, bot flag off", { SOPHIA_BOT_ENABLED: "false", SOPHIA_BOT_PREVIEW: "true", VERCEL_ENV: "production" }],
+    ["UI preview on production, bot flag unset", { SOPHIA_BOT_ENABLED: "", SOPHIA_BOT_PREVIEW: "", VERCEL_ENV: "production" }],
+    ["UI preview locally, bot flag off", { SOPHIA_BOT_ENABLED: "false", SOPHIA_BOT_PREVIEW: "true" }],
+    ["UI preview with a key on production but no shared limiter", { SOPHIA_BOT_PREVIEW: "true", VERCEL_ENV: "production" }],
   ])("%s → 404, no model call", async (_, env) => {
     for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
     const res = await post({ message: "What is Sophia Forum?" });

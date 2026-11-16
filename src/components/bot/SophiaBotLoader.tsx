@@ -18,8 +18,9 @@ const GAP = 16;
  * The floating launcher. It appears once the page is idle (so it never competes with the page's own loading), and the
  * chat panel's code is only downloaded when the launcher is first opened or hovered. While the footer's bottom ribbon
  * (with the POWER SAVER button) is on screen, the launcher moves up so it never covers it.
+ * preview: the AI isn't available yet; the panel is shown read-only (see SophiaBotPanel).
  */
-export function SophiaBotLoader({ idleDelayMs = 1200 }: { idleDelayMs?: number }) {
+export function SophiaBotLoader({ idleDelayMs = 1200, preview = false }: { idleDelayMs?: number; preview?: boolean }) {
   const pathname = usePathname();
   const hidden = botHiddenOn(pathname);
   const [ready, setReady] = useState(false);
@@ -89,8 +90,9 @@ export function SophiaBotLoader({ idleDelayMs = 1200 }: { idleDelayMs?: number }
           <span className="relative inline-flex w-11 h-11 items-center justify-center rounded-full bg-white border-2 border-background/20">
             <Image src="/images/sophia-forum-logo.png" alt="" width={1022} height={1177} sizes="44px" className="w-full h-full rounded-full object-contain p-0.5" />
             <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 flex w-3.5 h-3.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-google-green opacity-60 motion-safe:animate-ping" />
-              <span className="relative inline-flex w-3.5 h-3.5 rounded-full bg-google-green border-2 border-foreground" />
+              {/* green "online" pulse only when the bot can answer; a still yellow dot in preview */}
+              {!preview && <span className="absolute inline-flex h-full w-full rounded-full bg-google-green opacity-60 motion-safe:animate-ping" />}
+              <span className={`relative inline-flex w-3.5 h-3.5 rounded-full ${preview ? "bg-google-yellow" : "bg-google-green"} border-2 border-foreground`} />
             </span>
           </span>
           <span className="hidden sm:flex flex-col items-start leading-none">
@@ -101,7 +103,7 @@ export function SophiaBotLoader({ idleDelayMs = 1200 }: { idleDelayMs?: number }
       )}
       {wanted && (
         <Suspense fallback={null}>
-          <SophiaBotPanel open={open} onClose={close} />
+          <SophiaBotPanel open={open} onClose={close} preview={preview} />
         </Suspense>
       )}
     </>

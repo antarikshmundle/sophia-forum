@@ -42,6 +42,27 @@ export function botAvailability(env: Env = process.env, rateLimit: "shared" | "m
   return { enabled: true, apiKey, model };
 }
 
+/**
+ * How the chat widget is shown. UI only: this never enables /api/bot/chat, which checks botAvailability() alone.
+ *  - "live":    the bot is fully available (botAvailability().enabled); the panel asks the API.
+ *  - "preview": the bot is NOT available, but the launcher and panel are shown with a "being prepared" notice and the
+ *               input disabled; nothing is ever sent.
+ *  - "off":     no launcher at all.
+ *
+ *   SOPHIA_BOT_PREVIEW   "true" = preview whenever the bot isn't available; "false" = never preview; unset = preview on
+ *                        a Vercel production deployment only (VERCEL_ENV=production), off everywhere else. Local
+ *                        development is therefore unchanged: live when the bot is configured, otherwise off.
+ */
+export type BotUiMode = "live" | "preview" | "off";
+
+export function botUiMode(env: Env = process.env, availability: BotAvailability = botAvailability(env)): BotUiMode {
+  if (availability.enabled) return "live";
+  const preview = env.SOPHIA_BOT_PREVIEW;
+  if (preview === "true") return "preview";
+  if (preview === undefined || preview === "") return env.VERCEL_ENV === "production" ? "preview" : "off";
+  return "off";
+}
+
 /** Limits of one chat request. */
 export const CHAT_LIMITS = {
   /** characters in the question */

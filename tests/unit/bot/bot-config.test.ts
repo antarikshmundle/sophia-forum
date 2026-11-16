@@ -1,6 +1,8 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
-import { botAvailability } from "@/lib/bot/config";
+import type React from "react";
+import { describe, expect, it, vi } from "vitest";
+import { botAvailability, botUiMode } from "@/lib/bot/config";
+import { SophiaBotLoader } from "@/components/bot/SophiaBotLoader";
 import { clientKeyOf, MemoryRateLimiter } from "@/lib/bot/ratelimit";
 import { buildEnvProblems } from "@/lib/build-env";
 import { SophiaBot } from "@/components/bot/SophiaBot";
@@ -34,6 +36,61 @@ describe("feature flag and configuration", () => {
 
   it("the layout gate renders nothing unless the bot is available", () => {
     expect(SophiaBot()).toBeNull(); // test setup: no flag
+  });
+});
+
+describe("UI mode (SOPHIA_BOT_PREVIEW): UI only, never enables the API", () => {
+  const PROD = { VERCEL_ENV: "production" };
+
+  it("live whenever the bot is fully available, whatever the preview flag says", () => {
+    for (const p of [undefined, "", "true", "false"]) {
+      expect(botUiMode({ ...ON, SOPHIA_BOT_PREVIEW: p })).toBe("live");
+      expect(botUiMode({ ...ON, ...PROD, SOPHIA_BOT_PREVIEW: p }, botAvailability({ ...ON, ...PROD }, "shared"))).toBe("live");
+    }
+  });
+
+  it("local development is unchanged: live when configured, otherwise off", () => {
+    expect(botUiMode(ON)).toBe("live");
+    expect(botUiMode({})).toBe("off");
+    expect(botUiMode({ SOPHIA_BOT_ENABLED: "false" })).toBe("off");
+    expect(botUiMode({ ...ON, GEMINI_API_KEY: "" })).toBe("off");
+    expect(botUiMode({ VERCEL_ENV: "preview" })).toBe("off");
+  });
+
+  it("production with the bot off: preview by default; SOPHIA_BOT_PREVIEW=false hides it", () => {
+    expect(botUiMode(PROD)).toBe("preview");
+    expect(botUiMode({ ...PROD, SOPHIA_BOT_ENABLED: "false" })).toBe("preview");
+    expect(botUiMode({ ...PROD, SOPHIA_BOT_PREVIEW: "" })).toBe("preview");
+    expect(botUiMode({ ...PROD, SOPHIA_BOT_PREVIEW: "false" })).toBe("off");
+    expect(botUiMode({ ...PROD, SOPHIA_BOT_PREVIEW: "no" })).toBe("off");
+    // a key on production without the shared limiter is still not live
+    expect(botUiMode({ ...ON, ...PROD }, botAvailability({ ...ON, ...PROD }, "memory"))).toBe("preview");
+  });
+
+  it("SOPHIA_BOT_PREVIEW=true shows the preview anywhere the bot is off", () => {
+    expect(botUiMode({ SOPHIA_BOT_PREVIEW: "true" })).toBe("preview");
+    expect(botUiMode({ SOPHIA_BOT_PREVIEW: "true", VERCEL_ENV: "preview" })).toBe("preview");
+  });
+
+  it("the preview flag never changes botAvailability (the API's only gate)", () => {
+    for (const env of [{ SOPHIA_BOT_PREVIEW: "true" }, { SOPHIA_BOT_PREVIEW: "true", ...PROD }, { SOPHIA_BOT_ENABLED: "false", SOPHIA_BOT_PREVIEW: "true", ...PROD }]) {
+      expect(botAvailability(env)).toEqual({ enabled: false, reason: "flag-off" });
+    }
+  });
+
+  it("the layout gate renders the read-only launcher in preview", () => {
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("SOPHIA_BOT_ENABLED", "false");
+    try {
+      const el = SophiaBot() as React.ReactElement<{ preview: boolean }>;
+      expect(el).not.toBeNull();
+      expect(el.type).toBe(SophiaBotLoader);
+      expect(el.props.preview).toBe(true);
+      vi.stubEnv("SOPHIA_BOT_PREVIEW", "false");
+      expect(SophiaBot()).toBeNull();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
 
