@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:integration": "vitest run -c vitest.integration.config.mts",
-    "test:supabase": "node tests/integration/supabase/run.mjs"
+    "test:supabase": "node tests/integration/supabase/run.mjs",
+    "kb:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-knowledge-index.ts",
+    "kb:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-knowledge-index.ts --check"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

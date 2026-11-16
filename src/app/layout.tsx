@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LoginModal } from "@/components/auth/LoginModal";
+import { SophiaBot } from "@/components/bot/SophiaBot";
 import { AuthModeProvider } from "@/components/auth/AuthModeProvider";
 import { cmsAuthMode } from "@/lib/cms/mode";
 
@@ -79,6 +80,8 @@ export default function RootLayout({
           </main>
           <Footer />
           <LoginModal />
+          {/* SOPHIA BOT launcher: renders nothing unless SOPHIA_BOT_ENABLED=true and the bot is configured */}
+          <SophiaBot />
         </AuthModeProvider>
       </body>
     </html>

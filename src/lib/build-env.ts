@@ -26,7 +26,8 @@ function jwtRole(token: string): string | null | undefined {
   }
 }
 
-const looksSecret = (value: string) => /sb_secret_/i.test(value) || /service_role/i.test(value) || (jwtRole(value) ?? "anon") !== "anon";
+// Google API keys (Gemini) start with "AIza"
+const looksSecret = (value: string) => /sb_secret_/i.test(value) || /service_role/i.test(value) || /^AIza[\w-]{20,}$/.test(value.trim()) || (jwtRole(value) ?? "anon") !== "anon";
 
 /** Whether this build must be a validated backend build. */
 export function mustValidate(env: Env): boolean {
@@ -54,6 +55,10 @@ export function buildEnvProblems(env: Env): string[] {
   for (const [name, value] of Object.entries(env)) {
     if (name.startsWith("NEXT_PUBLIC_") && name !== "NEXT_PUBLIC_SUPABASE_ANON_KEY" && value && looksSecret(value)) {
       problems.push(`${name} looks like a secret key; NEXT_PUBLIC_* values are shipped to every browser`);
+    } else if (name.startsWith("NEXT_PUBLIC_") && /GEMINI|GOOGLE_AI|GENAI/i.test(name) && value) {
+      problems.push(`${name}: the Gemini key and settings are server-only; never use a NEXT_PUBLIC_ variable for them`);
+    } else if (name.startsWith("NEXT_PUBLIC_") && /UPSTASH|REDIS|KV_REST/i.test(name) && value) {
+      problems.push(`${name}: rate-limit store credentials are server-only; use UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN without NEXT_PUBLIC_`);
     }
   }
   return problems;
